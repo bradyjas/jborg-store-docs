@@ -1,0 +1,16 @@
+variables:
+  S3_BUCKET: "store-docs.jasonbrady.org"
+
+image: python:alpine
+
+before_script:
+- pip install mkdocs
+- pip install mkdocs-material
+- pip install awscli
+
+build-n-deploy:
+  script:
+  - mkdocs build
+  - aws s3 cp ./site s3://$S3_BUCKET --recursive
+  only:
+  - master

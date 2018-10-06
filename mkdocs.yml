@@ -1,0 +1,9 @@
+site_name: Project Documentation for store.jasonbrady.org
+site_url: https://store-docs.jasonbrady.org
+site_description: Project documentation for store.jasonbrady.org
+site_author: Jason Brady
+
+repo_url: https://github.com/bradyjas/jborg-store-docs
+
+theme:
+  name: 'material'
