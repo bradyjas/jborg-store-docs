@@ -29,6 +29,7 @@ pip install:
   <<: *python_definition
   script:
   - python -V
+  - pip -V
   - pip install virtualenv
   - virtualenv venv
   - source venv/bin/activate
@@ -40,6 +41,7 @@ npm install:
   stage: Initialization
   <<: *node_definition
   script:
+  - echo node $(node -v)
   - echo npm v$(npm -v)
   - npm install markdownlint-cli
 
@@ -55,6 +57,7 @@ mkdocs build:
   stage: Build Docs
   <<: *python_definition
   script:
+  - source venv/bin/activate
   - mkdocs build
   artifacts:
     name: site
