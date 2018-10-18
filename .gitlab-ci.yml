@@ -1,0 +1,70 @@
+stages:
+- Initialization
+- Integration Tests
+- Build Docs
+- Deploy
+
+## Build Image Templates
+
+.python_template: &python_definition
+  image: python:alpine
+  cache:
+    key: python-${CI_COMMIT_REF_SLUG}
+    paths:
+      - .cache/pip
+      - venv/
+
+.node_template: &node_definition
+  image: node:alpine
+  cache:
+    key: node-${CI_COMMIT_REF_SLUG}
+    paths:
+      - node_modules/
+
+
+## Jobs
+
+pip install:
+  stage: Initialization
+  <<: *python_definition
+  script:
+  - python -V
+  - pip install virtualenv
+  - virtualenv venv
+  - source venv/bin/activate
+  - pip install mkdocs
+  - pip install mkdocs-material
+  - pip install awscli
+
+npm install:
+  stage: Initialization
+  <<: *node_definition
+  script:
+  - echo npm v$(npm -v)
+  - npm install markdownlint-cli
+
+markdownlint:
+  stage: Integration Tests
+  <<: *node_definition
+  script:
+  - ./node_modules/.bin/markdownlint docs
+  except:
+  - master
+
+mkdocs build:
+  stage: Build Docs
+  <<: *python_definition
+  script:
+  - mkdocs build
+  artifacts:
+    name: site
+    paths:
+    - site/
+
+aws s3 sync:
+  stage: Deploy
+  <<: *python_definition
+  script:
+  - aws s3 sync ./site s3://${{S3_BUCKET}} --delete
+  only:
+  - master
