@@ -6,15 +6,16 @@ stages:
 
 ## Build Image Templates
 
-.python_template: &python_definition
+.python-template:
   image: python:alpine
   cache:
     key: python-${CI_COMMIT_REF_SLUG}
+    policy: pull
     paths:
       - .cache/pip
       - venv/
 
-.node_template: &node_definition
+.node-template:
   image: node:alpine
   cache:
     key: node-${CI_COMMIT_REF_SLUG}
@@ -26,7 +27,9 @@ stages:
 
 pip install:
   stage: Initialization
-  <<: *python_definition
+  extends: .python-template
+  cache:
+    policy: pull-push
   script:
   - python -V
   - pip -V
@@ -36,10 +39,13 @@ pip install:
   - pip install mkdocs
   - pip install mkdocs-material
   - pip install awscli
+  - deactivate
 
 npm install:
   stage: Initialization
-  <<: *node_definition
+  extends: .node-template
+  cache:
+    policy: pull-push
   script:
   - echo node $(node -v)
   - echo npm v$(npm -v)
@@ -47,7 +53,7 @@ npm install:
 
 markdownlint:
   stage: Integration Tests
-  <<: *node_definition
+  extends: .node-template
   script:
   - ./node_modules/.bin/markdownlint docs
   except:
@@ -55,19 +61,21 @@ markdownlint:
 
 mkdocs build:
   stage: Build Docs
-  <<: *python_definition
+  extends: .python-template
   script:
   - source venv/bin/activate
   - mkdocs build
+  - deactivate
   artifacts:
     name: site
+    expire_in: 1 day
     paths:
     - site/
 
 aws s3 sync:
   stage: Deploy
-  <<: *python_definition
+  extends: .python-template
   script:
-  - aws s3 sync ./site s3://${{S3_BUCKET}} --delete
+  - aws s3 sync ./site s3://$S3_BUCKET --delete
   only:
   - master
