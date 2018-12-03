@@ -15,8 +15,7 @@ stages:
     key: python-${CI_COMMIT_REF_SLUG}
     policy: pull
     paths:
-    - .cache/pip
-    - venv/
+    - "$CI_PROJECT_DIR/.cache/pip"
 
 .node-template:
   image: node:11.3-alpine
@@ -37,6 +36,8 @@ pip requirements:
   - python -V
   - pip -V
   - pip install -r requirements.txt
+  - mkdocs -V
+  - aws --version
 
 npm install:
   stage: Initialization
@@ -47,11 +48,13 @@ npm install:
   - echo node $(node -v)
   - echo npm v$(npm -v)
   - npm install markdownlint-cli
+  - echo markdownlint $(./node_modules/.bin/markdownlint -V)
 
 markdownlint:
   stage: Integration Tests
   extends: .node-template
   script:
+  - echo markdownlint $(./node_modules/.bin/markdownlint -V)
   - ./node_modules/.bin/markdownlint docs
   except:
     refs:
@@ -61,6 +64,7 @@ mkdocs build:
   stage: Build Docs
   extends: .python-template
   script:
+  - mkdocs -V
   - mkdocs build
   artifacts:
     name: site
@@ -72,6 +76,7 @@ aws s3 sync:
   stage: Deploy
   extends: .python-template
   script:
+  - aws --version
   - aws s3 sync ./site s3://$S3_BUCKET --delete
   only:
   - master
