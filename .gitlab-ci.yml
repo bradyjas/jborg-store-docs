@@ -4,30 +4,31 @@ stages:
 - Build Docs
 - Deploy
 
+
 ## Build Image Templates
 
 .python-template:
   variables:
     PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
-  image: python:alpine
+  image: python:3.7-alpine
   cache:
     key: python-${CI_COMMIT_REF_SLUG}
     policy: pull
     paths:
-      - .cache/pip
-      - venv/
+    - .cache/pip
+    - venv/
 
 .node-template:
-  image: node:alpine
+  image: node:11.3-alpine
   cache:
     key: node-${CI_COMMIT_REF_SLUG}
     paths:
-      - node_modules/
+    - node_modules/
 
 
 ## Jobs
 
-pip install:
+pip requirements:
   stage: Initialization
   extends: .python-template
   cache:
@@ -35,12 +36,7 @@ pip install:
   script:
   - python -V
   - pip -V
-  - pip install virtualenv
-  - virtualenv venv
-  - source venv/bin/activate
-  - pip install mkdocs
-  - pip install mkdocs-material
-  - pip install awscli
+  - pip install -r requirements.txt
 
 npm install:
   stage: Initialization
@@ -58,13 +54,13 @@ markdownlint:
   script:
   - ./node_modules/.bin/markdownlint docs
   except:
-  - master
+    refs:
+    - master
 
 mkdocs build:
   stage: Build Docs
   extends: .python-template
   script:
-  - source venv/bin/activate
   - mkdocs build
   artifacts:
     name: site
@@ -76,7 +72,6 @@ aws s3 sync:
   stage: Deploy
   extends: .python-template
   script:
-  - source venv/bin/activate
   - aws s3 sync ./site s3://$S3_BUCKET --delete
   only:
   - master
