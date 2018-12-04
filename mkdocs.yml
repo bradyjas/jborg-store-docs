@@ -1,9 +1,47 @@
+# Project Information
 site_name: Project Documentation for store.jasonbrady.org
 site_url: https://store-docs.jasonbrady.org
 site_description: Project documentation for store.jasonbrady.org
 site_author: Jason Brady
 
+# Repository
+repo_name: bradyjas/jborg-store-docs
 repo_url: https://github.com/bradyjas/jborg-store-docs
 
+# Copyright
+copyright: Copyright &copy; 2018 Jason Brady
+
+# Configuration
 theme:
-  name: 'material'
+  name: material
+  language: en
+  palette:
+    primary: green
+    accent: green
+  font:
+    text: Roboto
+    code: Roboto Mono
+
+# Customizations
+extra:
+  social:
+  - type: github
+    link: https://github.com/bradyjas
+  - type: linkedin
+    link: https://linkedin.com/in/bradyjas
+  - type: medium
+    link: https://medium.com/@bradyjas
+
+# Google Analytics
+google_analytics:
+- UA-130346986-1
+- auto
+
+# Extensions
+markdown_extensions:
+- admonition
+- codehilite:
+    guess_lang: false
+    linenums: true
+- toc:
+    permalink: true
