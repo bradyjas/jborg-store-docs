@@ -64,6 +64,9 @@ mkdocs build:
   stage: Build Docs
   extends: .python-template
   script:
+  - pwd
+  - ls -al
+  - ls -al $CI_PROJECT_DIR
   - mkdocs -V
   - mkdocs build
   artifacts:
